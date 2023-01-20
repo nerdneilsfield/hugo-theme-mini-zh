@@ -23,7 +23,7 @@
 {{ end }}
 
 <link rel="shortcut icon" href="{{ "/images/favicon.ico" | relURL }}" type="image/x-icon" />
-
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
 {{ if .Site.Params.enableGoogleAnalytics }} 
     {{ template "_internal/google_analytics_async.html" . }}
 {{ end }}
