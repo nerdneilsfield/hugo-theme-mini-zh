@@ -219,8 +219,13 @@ nav.navigation a.button {
 }
 .toc ul {
   padding-inline-start: 24px;
-  white-space:nowrap;
-  overflow:hidden;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.toc .nav-link {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 /* comment */
@@ -386,6 +391,10 @@ nav.navigation a.button {
   #single .title {
     font-size: 24px;
     line-height: 32px;
+  }
+
+  .toc {
+    display: none;
   }
 }
 
