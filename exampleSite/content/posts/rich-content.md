@@ -28,7 +28,7 @@ Hugo ships with several [Built-in Shortcodes](https://gohugo.io/content-manageme
 
 <br>
 
-{{< bilibili BV1XY411K7q1 750035958 42>}}
+{{< bilibili BV1XY411K7q1 42>}}
 
 --- 
 
