@@ -4,8 +4,15 @@ html[theme="dark-mode"] {
 
 body {
   line-height: 1;
-  font: normal 15px/1.5em "Helvetica Neue", Helvetica, Arial, "Microsoft Yahei",
-    "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", sans-serif;
+  /* font: normal 15px/1.5em "Helvetica Neue", Helvetica, Arial, "Microsoft Yahei",
+    "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", sans-serif; */
+  font: normal 18px/1.5em "Helvetica Neue", Helvetica, Arial, "Liberation Sans",
+    "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Source Han Sans SC",
+    "Source Han Sans CN", "Microsoft YaHei", "Wenquanyi Micro Hei",
+    "WenQuanYi Zen Hei", "ST Heiti", SimHei, "WenQuanYi Zen Hei Sharp",
+    sans-serif;
+  /* font: normal 15px/1.5em "Helvetica Neue", Helvetica, Arial, STFangsong,
+    FangSong, FangSong_GB2312, "CWTEX\-F", sans-serif; */
   color: #404040;
   line-height: 1.75;
   letter-spacing: 0.008em;
