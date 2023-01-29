@@ -22,6 +22,23 @@ Hugo ships with several [Built-in Shortcodes](https://gohugo.io/content-manageme
 
 ---
 
+## Bilibili Simple ShortCode
+
+{{< bilibili BV1QU4y187yL >}}
+
+<br>
+
+{{< bilibili BV1XY411K7q1 750035958 42>}}
+
+--- 
+
+## Netease Simple Shortcode
+
+
+
+
+---
+
 ## Twitter Simple Shortcode
 
 {{< twitter_simple 1085870671291310081 >}}
@@ -33,3 +50,6 @@ Hugo ships with several [Built-in Shortcodes](https://gohugo.io/content-manageme
 ## Vimeo Simple Shortcode
 
 {{< vimeo_simple 48912912 >}}
+
+
+

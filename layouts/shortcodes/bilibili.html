@@ -1,0 +1,71 @@
+<!-- <html>
+        <head>
+                <style>
+                        #test {
+                                width: 100%;
+                                height: 100%;
+                        }
+                </style>
+        </head>
+  <body>
+    <iframe
+      src="https://player.bilibili.com/player.html?bvid=BV1QU4y187yL&cid=321302151&page=1&as_wide=1&high_quality=1&danmaku=0"
+      scrolling="no"
+      border="0"
+      frameborder="no"
+      framespacing="0"
+      allowfullscreen="true"
+      id="test"
+    >
+    </iframe>
+  </body>
+</html> -->
+
+<style>
+  .aspect-ratio {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%;
+  }
+
+  .aspect-ratio iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+</style>
+
+<div align="center" class="aspect-ratio">
+  {{if eq (len .Params) 1}}
+  <iframe
+    src="https://player.bilibili.com/player.html?bvid={{ index .Params 0 }}&&page=1&as_wide=1&high_quality=1&danmaku=0"
+    scrolling="no"
+    border="0"
+    frameborder="no"
+    framespacing="0"
+    allowfullscreen="true"
+  >
+  {{else if eq (len .Params) 2}}
+  <iframe
+  src="https://player.bilibili.com/player.html?bvid={{ index .Params 0 }}&cid={{ index .Params 1 }}&&page=1&as_wide=1&high_quality=1&danmaku=0"
+  scrolling="no"
+  border="0"
+  frameborder="no"
+  framespacing="0"
+  allowfullscreen="true"
+  >
+  {{else}}
+  <iframe
+  src="https://player.bilibili.com/player.html?bvid={{ index .Params 0 }}&cid={{ index .Params 1 }}&&page={{ index .Params 2}}&as_wide=1&high_quality=1&danmaku=0"
+  scrolling="no"
+  border="0"
+  frameborder="no"
+  framespacing="0"
+  allowfullscreen="true"
+  >
+  {{end}}
+  </iframe>
+</div>
