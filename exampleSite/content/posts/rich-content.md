@@ -24,7 +24,7 @@ Hugo ships with several [Built-in Shortcodes](https://gohugo.io/content-manageme
 
 ## Bilibili Simple ShortCode
 
-{{< bilibili BV1QU4y187yL >}}
+{{< bilibili BV1GJ411x7h7 >}}
 
 <br>
 
@@ -35,7 +35,7 @@ Hugo ships with several [Built-in Shortcodes](https://gohugo.io/content-manageme
 ## Netease Simple Shortcode
 
 
-
+{{<neteasemusic 28074427 1>}}
 
 ---
 
