@@ -28,6 +28,54 @@
 <script>
 (function(){
   if(!window.mermaid) return;
+
+  const normalizeTargets = () => {
+    const targets = new Set();
+
+    document.querySelectorAll('pre code.language-mermaid').forEach(code => {
+      const graph = code.textContent.trim();
+      if (!graph) return;
+      const pre = code.parentElement;
+      if (!pre) return;
+      pre.dataset.mermaidGraph = graph;
+      let host = pre.nextElementSibling;
+      while (host && host.nodeType === Node.TEXT_NODE) host = host.nextSibling;
+      if (!host || !host.classList || !host.classList.contains('mermaid-diagram')) {
+        host = document.createElement('div');
+        host.className = 'mermaid mermaid-diagram';
+        pre.insertAdjacentElement('afterend', host);
+      }
+      host.dataset.graph = graph;
+      pre.style.display = 'none';
+      targets.add(host);
+    });
+
+    document.querySelectorAll('.mermaid').forEach(el => {
+      if (!el.dataset.graph) el.dataset.graph = el.textContent.trim();
+      targets.add(el);
+    });
+
+    return Array.from(targets);
+  };
+
+  const render = (mode) => {
+    const theme = mode === 'dark' ? 'dark' : 'default';
+    const hosts = normalizeTargets();
+    if (!hosts.length) return;
+    mermaid.initialize({ startOnLoad: false, theme });
+    hosts.forEach(host => {
+      const graph = host.dataset.graph;
+      if (!graph) return;
+      host.textContent = graph;
+      host.removeAttribute('data-processed');
+    });
+    requestAnimationFrame(() => {
+      if (typeof mermaid.init === 'function') {
+        hosts.forEach(host => mermaid.init(undefined, host));
+      }
+    });
+  };
+
   const getMode = () => {
     const doc = document.documentElement;
     if (doc.classList.contains('force-dark')) return 'dark';
@@ -35,13 +83,7 @@
     const prefers = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     return prefers ? 'dark' : 'light';
   };
-  const render = (mode) => {
-    const theme = mode === 'dark' ? 'dark' : 'default';
-    mermaid.initialize({ startOnLoad: true, theme });
-    if (typeof mermaid.init === 'function') {
-      mermaid.init(undefined, document.querySelectorAll('.language-mermaid, .mermaid'));
-    }
-  };
+
   render(getMode());
   document.addEventListener('qiqi-themechange', (event) => {
     render(event.detail.effective);
@@ -64,6 +106,75 @@
   window.markmap.autoLoader = Object.assign({ toolbar: true }, window.markmap.autoLoader || {});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/markmap-autoloader"></script>
+<script>
+(function(){
+  const isReady = () => !!(window.markmap && window.markmap.Markmap && (window.markmap.autoLoader || window.markmap.Transformer));
+  if (!isReady()) return;
+
+  const transformer = (window.markmap.autoLoader && window.markmap.autoLoader.transformer)
+    ? window.markmap.autoLoader.transformer
+    : new window.markmap.Transformer();
+
+  const collectHosts = () => {
+    const hosts = new Set();
+
+    document.querySelectorAll('pre code.language-markmap').forEach(code => {
+      const markdown = code.textContent.trim();
+      if (!markdown) return;
+      const pre = code.parentElement;
+      if (!pre) return;
+      pre.dataset.markmapMarkdown = markdown;
+      let host = pre.nextElementSibling;
+      while (host && host.nodeType === Node.TEXT_NODE) host = host.nextSibling;
+      if (!host || !host.classList || !host.classList.contains('markmap-host')) {
+        if (host && host.classList && host.classList.contains('markmap')) {
+          host.classList.add('markmap-host');
+        } else {
+          host = document.createElement('div');
+          host.className = 'markmap markmap-host';
+          pre.insertAdjacentElement('afterend', host);
+        }
+      }
+      host.dataset.markmap = markdown;
+      pre.style.display = 'none';
+      hosts.add(host);
+    });
+
+    document.querySelectorAll('.markmap').forEach(el => {
+      if (!el.dataset.markmap) {
+        const template = el.querySelector('script[type="text/markmap"], script[type="text/template"]');
+        if (template) {
+          el.dataset.markmap = template.textContent.trim();
+        } else if (el.textContent.trim() && !el.querySelector('svg')) {
+          el.dataset.markmap = el.textContent.trim();
+        }
+      }
+      if (el.dataset.markmap) hosts.add(el);
+    });
+
+    return Array.from(hosts);
+  };
+
+  const render = () => {
+    if (!isReady()) return;
+    const { Markmap } = window.markmap;
+    const hosts = collectHosts();
+    hosts.forEach(host => {
+      const markdown = host.dataset.markmap;
+      if (!markdown) return;
+      const { root, features } = transformer.transform(markdown);
+      host.innerHTML = '';
+      const instance = Markmap.create(host, {}, root);
+      if (features && window.markmap.autoLoader && typeof window.markmap.autoLoader.setToolbar === 'function') {
+        window.markmap.autoLoader.setToolbar(instance, features);
+      }
+    });
+  };
+
+  render();
+  document.addEventListener('qiqi-themechange', render);
+})();
+</script>
 {{ end }}
 
 {{ range .Site.Params.customJS }}
