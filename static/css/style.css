@@ -1,3 +1,31 @@
+.btn-fab {
+  position: fixed;
+  right: 14px;
+  right: calc(14px + env(safe-area-inset-right, 0px));
+  bottom: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 2147483647;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  appearance: none;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+  color: #333;
+  border-radius: 999px;
+  padding: 10px 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+#btn-toc {
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+#btn-theme {
+  bottom: 72px;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
 html[theme="dark-mode"] {
   filter: invert(1) hue-rotate(180deg);
 }
@@ -209,6 +237,7 @@ nav.navigation a.button {
   flex: 0 0 320px;
   position: sticky;
   top: 84px;
+  z-index: 2;
   align-self: flex-start;
   max-height: calc(100vh - 120px);
   overflow: auto;
@@ -434,7 +463,7 @@ nav.navigation a.button {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,.35);
-    z-index: 999;
+    z-index: 2147483645;
   }
   .toc-drawer[hidden] { display: none !important; }
   .toc-drawer {
@@ -446,7 +475,7 @@ nav.navigation a.button {
     width: 82vw;
     max-width: 360px;
     background: #fff;
-    z-index: 1001;
+    z-index: 2147483646;
     flex-direction: column;
     box-shadow: -2px 0 12px rgba(0,0,0,.2);
   }
@@ -628,3 +657,4 @@ nav.navigation a.button {
   top: 1px;
   color: #bbb;
 }
+

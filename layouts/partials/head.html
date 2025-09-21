@@ -1,6 +1,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">    
 <meta name="viewport" content="width=device-width,minimum-scale=1">
+<meta name="color-scheme" content="light dark">
 <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
 {{ hugo.Generator }}
 {{/* NOTE: For Production make sure you add `HUGO_ENV="production"` before your build command */}}
@@ -9,6 +10,17 @@
 {{ else }}
   <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
 {{ end }}
+
+<script>
+  (function(){
+    try{
+      var pref = localStorage.getItem('qiqi.theme') || 'auto';
+      var d = document.documentElement;
+      if(pref==='dark') d.classList.add('force-dark');
+      if(pref==='light') d.classList.add('force-light');
+    }catch(e){}
+  })();
+</script>
 
 <link rel="stylesheet" href="{{ "/css/style.css" | relURL }}">
 

@@ -59,69 +59,90 @@ mermaid.initialize({ startOnLoad: true, theme: mermaidTheme });
 {{ end }}
 
 <script>
-// TOC scrollspy: default show up to h3, expand current section on scroll
+// TOC scrollspy + 抽屉按钮：同时支持抽屉内与旧版位置
 (function(){
-  const toc = document.querySelector('.toc #TableOfContents');
-  if(!toc) return;
-  // 默认只显示到 h3：隐藏第三层以下的嵌套 ul（从第四层起）
-  const collapseDeeper = () => {
-    const uls = toc.querySelectorAll('ul ul ul ul');
-    uls.forEach(ul => ul.style.display = 'none');
-  };
-  collapseDeeper();
+  const toc = document.querySelector('#toc-drawer #TableOfContents') || document.querySelector('.toc #TableOfContents');
 
-  const headings = Array.from(document.querySelectorAll('.content h1, .content h2, .content h3, .content h4, .content h5'));
-  const links = Array.from(toc.querySelectorAll('a'));
-  if(headings.length === 0 || links.length === 0) return;
-
-  const idMap = new Map();
-  links.forEach(a => { idMap.set(a.getAttribute('href'), a); });
-
-  let activeHref = null;
-  const onScroll = () => {
-    let current = null;
-    const fromTop = window.scrollY + 120; // offset below header
-    for (const h of headings) {
-      if (h.offsetTop <= fromTop) current = h; else break;
-    }
-    if (!current || !current.id) return;
-    const href = '#' + current.id;
-    if (href === activeHref) return;
-    activeHref = href;
-    links.forEach(a => a.classList.remove('is-active'));
-    // 收起所有深层分支（h4+）以保持紧凑
+  if (toc) {
+    // 默认只显示到 h3：隐藏第三层以下的嵌套 ul（从第四层起）
+    const collapseDeeper = () => {
+      const uls = toc.querySelectorAll('ul ul ul ul');
+      uls.forEach(ul => ul.style.display = 'none');
+    };
     collapseDeeper();
-    const activeLink = idMap.get(href);
-    if (activeLink) {
-      activeLink.classList.add('is-active');
-      // 展开祖先链，保证当前项可见
-      let node = activeLink.parentElement;
-      while (node && node !== toc) {
-        if (node.tagName === 'UL') node.style.display = '';
-        node = node.parentElement;
-      }
-      // 展开当前项的下一层（看更多）
-      const nextUl = activeLink.nextElementSibling;
-      if (nextUl && nextUl.tagName === 'UL') nextUl.style.display = '';
-      // 让高亮项在目录可视区域内
-      activeLink.scrollIntoView({block: 'nearest'});
-    }
-  };
-  document.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 
-  // Mobile drawer controls
-  const toggleBtn = document.querySelector('.toc-toggle');
-  const drawer = document.querySelector('#toc-drawer');
-  const backdrop = document.querySelector('.toc-backdrop');
-  const closeBtn = document.querySelector('.toc-close');
+    const headings = Array.from(document.querySelectorAll('.content h1, .content h2, .content h3, .content h4, .content h5'));
+    const links = Array.from(toc.querySelectorAll('a'));
+    const idMap = new Map();
+    links.forEach(a => { idMap.set(a.getAttribute('href'), a); });
+
+    let activeHref = null;
+    const onScroll = () => {
+      if (headings.length === 0 || links.length === 0) return;
+      let current = null;
+      const fromTop = window.scrollY + 120; // offset below header
+      for (const h of headings) {
+        if (h.offsetTop <= fromTop) current = h; else break;
+      }
+      if (!current || !current.id) return;
+      const href = '#' + current.id;
+      if (href === activeHref) return;
+      activeHref = href;
+      links.forEach(a => a.classList.remove('is-active'));
+      collapseDeeper();
+      const activeLink = idMap.get(href);
+      if (activeLink) {
+        activeLink.classList.add('is-active');
+        let node = activeLink.parentElement;
+        while (node && node !== toc) {
+          if (node.tagName === 'UL') node.style.display = '';
+          node = node.parentElement;
+        }
+        const nextUl = activeLink.nextElementSibling;
+        if (nextUl && nextUl.tagName === 'UL') nextUl.style.display = '';
+        activeLink.scrollIntoView({block: 'nearest'});
+      }
+    };
+    document.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // 抽屉按钮控制（即使没有 toc 也不报错）
+  const toggleBtn = document.getElementById('btn-toc');
+  const drawer = document.getElementById('toc-drawer');
+  const backdrop = document.getElementById('toc-backdrop');
+  const closeBtn = drawer ? drawer.querySelector('.toc-close') : null;
   const setOpen = (open) => {
-    if(!toggleBtn || !drawer || !backdrop) return;
+    if(!drawer || !backdrop || !toggleBtn) return;
     drawer.hidden = !open; backdrop.hidden = !open;
     toggleBtn.setAttribute('aria-expanded', String(open));
   };
   toggleBtn && toggleBtn.addEventListener('click', () => setOpen(true));
   closeBtn && closeBtn.addEventListener('click', () => setOpen(false));
   backdrop && backdrop.addEventListener('click', () => setOpen(false));
+})();
+</script>
+
+<script>
+// Theme toggle
+(function(){
+  var KEY='qiqi.theme', mql=window.matchMedia('(prefers-color-scheme: dark)');
+  var btn=document.getElementById('btn-theme');
+  function get(){ try{return localStorage.getItem(KEY)||'auto';}catch(e){return 'auto';} }
+  function set(v){ try{localStorage.setItem(KEY,v);}catch(e){} }
+  function apply(v){
+    var d=document.documentElement; d.classList.remove('force-dark','force-light');
+    if(v==='dark') d.classList.add('force-dark');
+    if(v==='light') d.classList.add('force-light');
+    if(btn){ btn.textContent = v==='auto' ? (mql.matches?'🌓 自动·深色':'🌓 自动·浅色') : (v==='dark'?'🌙 深色':'☀️ 浅色'); }
+  }
+  function cycle(){ var v=get(); v = (v==='auto')?'dark':(v==='dark'?'light':'auto'); set(v); apply(v); }
+  apply(get());
+  mql.addEventListener && mql.addEventListener('change', function(){ if(get()==='auto') apply('auto'); });
+  btn && btn.addEventListener('click', cycle);
+  document.addEventListener('keydown', function(e){
+    if(e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+    if(e.key && e.key.toLowerCase()==='d') cycle();
+  });
 })();
 </script>
