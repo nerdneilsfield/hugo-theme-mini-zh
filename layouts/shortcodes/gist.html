@@ -1,0 +1,18 @@
+{{/* 自定义 gist 短代码：用法 {{< gist user gistID [file] >}} */}}
+{{ $user := .Get 0 }}
+{{ $id := .Get 1 }}
+{{ $file := .Get 2 }}
+{{ if $user }}
+  {{ if $id }}
+    {{ $src := printf "https://gist.github.com/%s/%s.js" $user $id }}
+    {{ if $file }}
+      {{ $src = printf "%s?file=%s" $src ($file | urlquery) }}
+    {{ end }}
+    <script src="{{ $src }}"></script>
+    <noscript>
+      <a href="https://gist.github.com/{{ $user }}/{{ $id }}">View gist</a>{{ if $file }} ({{ $file }}){{ end }}
+    </noscript>
+  {{ end }}
+{{ end }}
+
+
