@@ -13,7 +13,8 @@ hasCJKLanguage: true
 permalinks:
   posts: /posts/:title/
 
-paginate: 3
+pagination:
+  pagerSize: 10
 
 googleAnalytics: your-google-analytics-id
 disqusShortname: your-disqus-shortname

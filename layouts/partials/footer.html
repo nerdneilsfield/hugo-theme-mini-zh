@@ -1,5 +1,5 @@
 <footer id="footer">
-    {{ if .Site.Social }}
+    {{ if .Site.Params.social }}
         {{ partial "social.html" . }}
     {{ end }}
 
@@ -23,6 +23,15 @@
     {{ end }}
 </footer>
 
+{{ if .Page.Store.Get "hasMermaid" }}
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let mermaidTheme = isDark ? 'dark' : 'default';
+mermaid.initialize({ startOnLoad: true, theme: mermaidTheme });
+</script>
+{{ end }}
+
 {{ range .Site.Params.customJS }}
     {{ if ( or ( hasPrefix . "http://" ) ( hasPrefix . "https://" ) ) }}
         <!-- remote js -->
@@ -32,3 +41,71 @@
         <script src="{{ $.Site.BaseURL }}{{ . }}"></script>
     {{ end }}
 {{ end }}
+
+<script>
+// TOC scrollspy: default show up to h3, expand current section on scroll
+(function(){
+  const toc = document.querySelector('.toc #TableOfContents');
+  if(!toc) return;
+  // 默认只显示到 h3：隐藏第三层以下的嵌套 ul（从第四层起）
+  const collapseDeeper = () => {
+    const uls = toc.querySelectorAll('ul ul ul ul');
+    uls.forEach(ul => ul.style.display = 'none');
+  };
+  collapseDeeper();
+
+  const headings = Array.from(document.querySelectorAll('.content h1, .content h2, .content h3, .content h4, .content h5'));
+  const links = Array.from(toc.querySelectorAll('a'));
+  if(headings.length === 0 || links.length === 0) return;
+
+  const idMap = new Map();
+  links.forEach(a => { idMap.set(a.getAttribute('href'), a); });
+
+  let activeHref = null;
+  const onScroll = () => {
+    let current = null;
+    const fromTop = window.scrollY + 120; // offset below header
+    for (const h of headings) {
+      if (h.offsetTop <= fromTop) current = h; else break;
+    }
+    if (!current || !current.id) return;
+    const href = '#' + current.id;
+    if (href === activeHref) return;
+    activeHref = href;
+    links.forEach(a => a.classList.remove('is-active'));
+    // 收起所有深层分支（h4+）以保持紧凑
+    collapseDeeper();
+    const activeLink = idMap.get(href);
+    if (activeLink) {
+      activeLink.classList.add('is-active');
+      // 展开祖先链，保证当前项可见
+      let node = activeLink.parentElement;
+      while (node && node !== toc) {
+        if (node.tagName === 'UL') node.style.display = '';
+        node = node.parentElement;
+      }
+      // 展开当前项的下一层（看更多）
+      const nextUl = activeLink.nextElementSibling;
+      if (nextUl && nextUl.tagName === 'UL') nextUl.style.display = '';
+      // 让高亮项在目录可视区域内
+      activeLink.scrollIntoView({block: 'nearest'});
+    }
+  };
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Mobile drawer controls
+  const toggleBtn = document.querySelector('.toc-toggle');
+  const drawer = document.querySelector('#toc-drawer');
+  const backdrop = document.querySelector('.toc-backdrop');
+  const closeBtn = document.querySelector('.toc-close');
+  const setOpen = (open) => {
+    if(!toggleBtn || !drawer || !backdrop) return;
+    drawer.hidden = !open; backdrop.hidden = !open;
+    toggleBtn.setAttribute('aria-expanded', String(open));
+  };
+  toggleBtn && toggleBtn.addEventListener('click', () => setOpen(true));
+  closeBtn && closeBtn.addEventListener('click', () => setOpen(false));
+  backdrop && backdrop.addEventListener('click', () => setOpen(false));
+})();
+</script>

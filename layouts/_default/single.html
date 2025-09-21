@@ -19,14 +19,13 @@
         </span>
     </div>
 
-    
-    {{ if or .Site.Params.showToc .Params.showToc }}
-        {{ partial "toc.html" . }}
-    {{ end }}
-
-
-    <div class="content">
-      {{ .Content }}
+    <div class="single-body">
+      {{ if or .Site.Params.showToc .Params.showToc }}
+          {{ partial "toc.html" . }}
+      {{ end }}
+      <div class="content">
+        {{ .Content }}
+      </div>
     </div>
 
     {{ with .Params.tags }}

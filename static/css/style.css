@@ -197,35 +197,43 @@ nav.navigation a.button {
 }
 
 /* toc */
+.single-body {
+  display: flex;
+  gap: 24px;
+}
+.single-body .content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .toc {
-  /* margin: auto;
-  background: #f8f8f8;
-  border-radius: 0;
-  padding: 10px 7px;
-  margin-top: 36px; */
-  position: fixed;
-  top: 50%;
-  right: 10%;
-  width: 10%;
-  transform: translateY(-50%);
-  /*background-color: #f6f6f6;*/
-  /*border: solid 1px #c9c9c9;*/
-  border-radius: 5px;
-  padding-bottom: 1rem;
+  flex: 0 0 320px;
+  position: sticky;
+  top: 84px;
+  align-self: flex-start;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+  padding: 6px 0 10px 0;
+  border-radius: 8px;
 }
 .toc details summary {
   cursor: zoom-in;
   margin-inline-start: 14px;
   font-weight: 500;
+  font-size: 13px;
 }
 .toc details[open] summary {
   cursor: zoom-out;
 }
 .toc #TableOfContents {
-  margin-left: 10px;
+  margin-left: 8px;
 }
+.toc #TableOfContents a {
+  font-size: 11px;
+  line-height: 1.5;
+}
+.toc #TableOfContents a.is-active { color: #0366d6; font-weight: 600; }
 .toc ul {
-  padding-inline-start: 24px;
+  padding-inline-start: 16px;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -378,9 +386,9 @@ nav.navigation a.button {
 
 /* single page */
 #single {
-  max-width: 680px;
+  max-width: 1200px;
   margin: 60px auto 0 auto;
-  padding: 0 64px;
+  padding: 0 32px;
 }
 
 #single .title {
@@ -400,8 +408,58 @@ nav.navigation a.button {
     line-height: 32px;
   }
 
-  .toc {
-    display: none;
+  .single-body { display: block; }
+  .toc { display: none; }
+  .toc-toggle {
+    position: fixed;
+    right: 14px;
+    bottom: 18px;
+    z-index: 1000;
+    padding: 10px 12px;
+    border-radius: 18px;
+    background: #5badf0;
+    color: #fff;
+    font-size: 14px;
+    border: none;
+  }
+  .toc-backdrop[hidden] { display: none !important; }
+  .toc-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 999;
+  }
+  .toc-drawer[hidden] { display: none !important; }
+  .toc-drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 82vw;
+    max-width: 360px;
+    background: #fff;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -2px 0 12px rgba(0,0,0,.2);
+  }
+  .toc-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+  }
+  .toc-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .toc-drawer-body {
+    overflow: auto;
+    padding: 10px 12px 20px 12px;
   }
 }
 

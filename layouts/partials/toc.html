@@ -1,7 +1,7 @@
 {{ with .TableOfContents }}
   {{ if ne . "<nav id=\"TableOfContents\"></nav>" }}
     <aside class="toc">
-      <details>
+      <details open>
           <summary>
               {{- i18n "toc" | default "Table of Contents" }}
           </summary>
@@ -10,5 +10,17 @@
           </div>
       </details>
     </aside>
+
+    <button class="toc-toggle" aria-controls="toc-drawer" aria-expanded="false">{{- i18n "toc" | default "Table of Contents" }}</button>
+    <div class="toc-backdrop" hidden></div>
+    <div id="toc-drawer" class="toc-drawer" hidden>
+      <div class="toc-drawer-header">
+        <span>{{- i18n "toc" | default "Table of Contents" }}</span>
+        <button class="toc-close" aria-label="Close">×</button>
+      </div>
+      <div class="toc-drawer-body">
+        {{ . }}
+      </div>
+    </div>
   {{ end }}
 {{ end }}
