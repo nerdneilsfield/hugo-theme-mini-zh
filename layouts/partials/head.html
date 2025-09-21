@@ -16,8 +16,16 @@
     try{
       var pref = localStorage.getItem('qiqi.theme') || 'auto';
       var d = document.documentElement;
-      if(pref==='dark') d.classList.add('force-dark');
-      if(pref==='light') d.classList.add('force-light');
+      var mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      var prefersDark = mql ? mql.matches : false;
+      d.classList.remove('force-dark','force-light');
+      d.removeAttribute('theme');
+      if(pref === 'dark' || (pref === 'auto' && prefersDark)){
+        d.classList.add('force-dark');
+        d.setAttribute('theme','dark-mode');
+      }else if(pref === 'light'){
+        d.classList.add('force-light');
+      }
     }catch(e){}
   })();
 </script>

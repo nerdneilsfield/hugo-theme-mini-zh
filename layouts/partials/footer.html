@@ -26,9 +26,27 @@
 {{ if .Page.Store.Get "hasMermaid" }}
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 <script>
-let isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-let mermaidTheme = isDark ? 'dark' : 'default';
-mermaid.initialize({ startOnLoad: true, theme: mermaidTheme });
+(function(){
+  if(!window.mermaid) return;
+  const getMode = () => {
+    const doc = document.documentElement;
+    if (doc.classList.contains('force-dark')) return 'dark';
+    if (doc.classList.contains('force-light')) return 'light';
+    const prefers = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return prefers ? 'dark' : 'light';
+  };
+  const render = (mode) => {
+    const theme = mode === 'dark' ? 'dark' : 'default';
+    mermaid.initialize({ startOnLoad: true, theme });
+    if (typeof mermaid.init === 'function') {
+      mermaid.init(undefined, document.querySelectorAll('.language-mermaid, .mermaid'));
+    }
+  };
+  render(getMode());
+  document.addEventListener('qiqi-themechange', (event) => {
+    render(event.detail.effective);
+  });
+})();
 </script>
 {{ end }}
 
@@ -112,33 +130,81 @@ mermaid.initialize({ startOnLoad: true, theme: mermaidTheme });
   const drawer = document.getElementById('toc-drawer');
   const backdrop = document.getElementById('toc-backdrop');
   const closeBtn = drawer ? drawer.querySelector('.toc-close') : null;
+  const isOpen = () => drawer && !drawer.hidden;
   const setOpen = (open) => {
     if(!drawer || !backdrop || !toggleBtn) return;
-    drawer.hidden = !open; backdrop.hidden = !open;
+    drawer.hidden = !open;
+    backdrop.hidden = !open;
+    drawer.setAttribute('aria-hidden', String(!open));
     toggleBtn.setAttribute('aria-expanded', String(open));
+    if(open){
+      document.body.dataset.tocLocked = document.body.dataset.tocLocked || document.body.style.overflow || '';
+      document.body.style.overflow = 'hidden';
+    }else{
+      if('tocLocked' in document.body.dataset){
+        document.body.style.overflow = document.body.dataset.tocLocked;
+        delete document.body.dataset.tocLocked;
+      }else{
+        document.body.style.removeProperty('overflow');
+      }
+    }
   };
-  toggleBtn && toggleBtn.addEventListener('click', () => setOpen(true));
+  drawer && drawer.setAttribute('aria-hidden', String(drawer.hidden));
+  toggleBtn && toggleBtn.addEventListener('click', () => setOpen(!isOpen()));
   closeBtn && closeBtn.addEventListener('click', () => setOpen(false));
   backdrop && backdrop.addEventListener('click', () => setOpen(false));
+  document.addEventListener('keydown', (event) => {
+    if(event.key === 'Escape') setOpen(false);
+  });
 })();
 </script>
 
 <script>
 // Theme toggle
 (function(){
-  var KEY='qiqi.theme', mql=window.matchMedia('(prefers-color-scheme: dark)');
+  var KEY='qiqi.theme';
+  var mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   var btn=document.getElementById('btn-theme');
+  var currentMode=null;
   function get(){ try{return localStorage.getItem(KEY)||'auto';}catch(e){return 'auto';} }
   function set(v){ try{localStorage.setItem(KEY,v);}catch(e){} }
   function apply(v){
-    var d=document.documentElement; d.classList.remove('force-dark','force-light');
-    if(v==='dark') d.classList.add('force-dark');
-    if(v==='light') d.classList.add('force-light');
-    if(btn){ btn.textContent = v==='auto' ? (mql.matches?'🌓 自动·深色':'🌓 自动·浅色') : (v==='dark'?'🌙 深色':'☀️ 浅色'); }
+    var d=document.documentElement;
+    var b=document.body;
+    var prefersDark = mql ? mql.matches : false;
+    var effective = v;
+    if(v==='auto') effective = prefersDark ? 'dark' : 'light';
+    d.classList.remove('force-dark','force-light');
+    b && b.classList.remove('force-dark','force-light');
+    d.removeAttribute('theme');
+    if(effective==='dark'){
+      d.classList.add('force-dark');
+      b && b.classList.add('force-dark');
+      d.setAttribute('theme','dark-mode');
+    }else if(effective==='light'){
+      d.classList.add('force-light');
+      b && b.classList.add('force-light');
+    }
+    if(btn){
+      var label;
+      if(v==='auto'){
+        label = prefersDark ? '🌓 自动·深色' : '🌓 自动·浅色';
+      }else if(v==='dark'){
+        label = '🌙 深色';
+      }else{
+        label = '☀️ 浅色';
+      }
+      btn.textContent = label;
+      btn.setAttribute('aria-label', label.replace(/^\S+\s*/, ''));
+    }
+    if(currentMode !== effective){
+      currentMode = effective;
+      document.dispatchEvent(new CustomEvent('qiqi-themechange', { detail: { value: v, effective: effective } }));
+    }
   }
   function cycle(){ var v=get(); v = (v==='auto')?'dark':(v==='dark'?'light':'auto'); set(v); apply(v); }
   apply(get());
-  mql.addEventListener && mql.addEventListener('change', function(){ if(get()==='auto') apply('auto'); });
+  mql && mql.addEventListener && mql.addEventListener('change', function(){ if(get()==='auto') apply('auto'); });
   btn && btn.addEventListener('click', cycle);
   document.addEventListener('keydown', function(e){
     if(e.target && /input|textarea|select/i.test(e.target.tagName)) return;
